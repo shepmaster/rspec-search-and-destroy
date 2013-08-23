@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH << "$PWD/../lib/"
+require 'rspec-sad'
+
+include RSpecSearchAndDestroy
+
+class TTYOutput
+  def found(causal_example, failed_example)
+    puts "Culprit found"
+    puts "Run    #{causal_example[:location]}"
+    puts "Before #{failed_example[:location]}"
+  end
+end
+
+results = RSpecDriver.load_run_results
+raise "no failures found" unless results.failed?
+
+output = TTYOutput.new
+selector = BinaryChopExampleSelector.new
+driver = RSpecDriver
+
+bisector = Bisector.new(output, selector, driver)
+bisector.bisect(results.causal_examples, results.failed_example)
+
+# --seed 33341
