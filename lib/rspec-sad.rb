@@ -95,6 +95,11 @@ module RSpecSearchAndDestroy
       end
     end
 
+    def initial_run
+      cleanup
+      run_rspec
+    end
+
     def run_examples(examples)
       locations = examples.map {|x| x[:location]}
 
@@ -102,14 +107,20 @@ module RSpecSearchAndDestroy
         Marshal.dump(locations, f)
       end
 
-      puts "run it now... (enter when done)"
-      gets
+      run_rspec
     end
 
     def cleanup
       [EXAMPLE_FILE, RESULT_FILE].each do |fname|
         File.delete(fname) if File.exist? fname
       end
+    end
+
+    private
+
+    def run_rspec
+      puts "run it now... (enter when done)"
+      gets
     end
   end
 end

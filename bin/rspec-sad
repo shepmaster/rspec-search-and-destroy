@@ -17,6 +17,7 @@ output = TTYOutput.new
 selector = BinaryChopExampleSelector.new
 driver = RSpecDriver.new
 
+driver.initial_run
 results = driver.load_run_results
 raise "no failures found" unless results.failed?
 
