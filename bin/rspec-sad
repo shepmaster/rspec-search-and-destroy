@@ -22,3 +22,5 @@ raise "no failures found" unless results.failed?
 
 bisector = Bisector.new(output, selector, driver)
 bisector.bisect(results.causal_examples, results.failed_example)
+
+driver.cleanup

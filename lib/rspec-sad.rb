@@ -105,5 +105,11 @@ module RSpecSearchAndDestroy
       puts "run it now... (enter when done)"
       gets
     end
+
+    def cleanup
+      [EXAMPLE_FILE, RESULT_FILE].each do |fname|
+        File.delete(fname) if File.exist? fname
+      end
+    end
   end
 end
