@@ -13,12 +13,12 @@ class TTYOutput
   end
 end
 
-results = RSpecDriver.load_run_results
-raise "no failures found" unless results.failed?
-
 output = TTYOutput.new
 selector = BinaryChopExampleSelector.new
-driver = RSpecDriver
+driver = RSpecDriver.new
+
+results = driver.load_run_results
+raise "no failures found" unless results.failed?
 
 bisector = Bisector.new(output, selector, driver)
 bisector.bisect(results.causal_examples, results.failed_example)

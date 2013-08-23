@@ -89,13 +89,13 @@ module RSpecSearchAndDestroy
   end
 
   class RSpecDriver
-    def self.load_run_results
+    def load_run_results
       File.open(RESULT_FILE, 'rb') do |f|
         RSpecResults.new(Marshal.load(f))
       end
     end
 
-    def self.run_examples(examples)
+    def run_examples(examples)
       locations = examples.map {|x| x[:location]}
 
       File.open(EXAMPLE_FILE, 'wb') do |f|
