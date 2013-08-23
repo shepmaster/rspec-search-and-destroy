@@ -3,7 +3,7 @@ require 'rspec-sad'
 
 describe RSpecSearchAndDestroy::ReorderAndFilter do
   subject(:ordering_block) do
-    RSpecSearchAndDestroy::ReorderAndFilter.block(location_source)
+    RSpecSearchAndDestroy::ReorderAndFilter.new(location_source).block
   end
 
   let(:location_source) { double("location source") }

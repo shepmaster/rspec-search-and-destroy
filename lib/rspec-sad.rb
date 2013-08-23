@@ -12,8 +12,10 @@ module RSpecSearchAndDestroy
   def self.configure(config)
     config.add_formatter(OrderFormatter)
 
-    if File.exist? EXAMPLE_FILE
-      config.order_examples(&RSpecSearchAndDestroy::ReorderAndFilter.block)
+    source = LocationSource.new
+    if source.enabled?
+      ordering = ReorderAndFilter.new(source)
+      config.order_examples(&ordering.block)
     end
   end
 
@@ -39,6 +41,10 @@ module RSpecSearchAndDestroy
   end
 
   class LocationSource
+    def enabled?
+      File.exist? EXAMPLE_FILE
+    end
+
     def example_locations_to_run
       File.open(EXAMPLE_FILE, 'rb') do |f|
         Marshal.load(f)
@@ -47,7 +53,13 @@ module RSpecSearchAndDestroy
   end
 
   class ReorderAndFilter
-    def self.block(source = LocationSource.new)
+    attr_reader :source
+
+    def initialize(source)
+      @source = source
+    end
+
+    def block
       lambda do |examples|
         locations = source.example_locations_to_run
 
