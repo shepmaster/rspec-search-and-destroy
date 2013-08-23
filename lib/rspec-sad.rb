@@ -6,9 +6,6 @@ require 'rspec'
 require 'rspec/core/formatters/base_formatter'
 
 module RSpecSearchAndDestroy
-  RESULT_FILE = "/tmp/example-results"
-  EXAMPLE_FILE = '/tmp/examples-to-run'
-
   def self.configure(config)
     config.add_formatter(OrderFormatter)
 
@@ -21,7 +18,7 @@ module RSpecSearchAndDestroy
 
   class OrderFormatter < RSpec::Core::Formatters::BaseFormatter
     def stop
-      File.open(RESULT_FILE, 'wb') do |f|
+      File.open(filename, 'wb') do |f|
         Marshal.dump(results, f)
       end
 
@@ -29,6 +26,10 @@ module RSpecSearchAndDestroy
     end
 
     private
+
+    def filename
+      ENV['RSPEC_SAD_RESULTS'] or raise "No result filename provided"
+    end
 
     def results
       examples.map do |e|
@@ -42,13 +43,21 @@ module RSpecSearchAndDestroy
 
   class LocationSource
     def enabled?
-      File.exist? EXAMPLE_FILE
+      filename && File.exist?(filename)
     end
 
     def example_locations_to_run
-      File.open(EXAMPLE_FILE, 'rb') do |f|
+      raise "LocationSource is not currently enabled" unless enabled?
+
+      File.open(filename, 'rb') do |f|
         Marshal.load(f)
       end
+    end
+
+    private
+
+    def filename
+      ENV['RSPEC_SAD_EXAMPLES']
     end
   end
 
@@ -101,6 +110,9 @@ module RSpecSearchAndDestroy
   end
 
   class RSpecDriver
+    RESULT_FILE = '/tmp/example-results'
+    EXAMPLE_FILE = '/tmp/examples-to-run'
+
     def load_run_results
       File.open(RESULT_FILE, 'rb') do |f|
         RSpecResults.new(Marshal.load(f))
@@ -131,7 +143,9 @@ module RSpecSearchAndDestroy
     private
 
     def run_rspec
-      puts "run it now... (enter when done)"
+      puts "run this:"
+      puts "RSPEC_SAD_EXAMPLES=#{EXAMPLE_FILE} RSPEC_SAD_RESULTS=#{RESULT_FILE} rspec"
+      puts "(enter when done)"
       gets
     end
   end
