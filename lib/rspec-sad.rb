@@ -143,10 +143,15 @@ module RSpecSearchAndDestroy
     private
 
     def run_rspec
-      puts "run this:"
-      puts "RSPEC_SAD_EXAMPLES=#{EXAMPLE_FILE} RSPEC_SAD_RESULTS=#{RESULT_FILE} rspec"
-      puts "(enter when done)"
-      gets
+      env = {
+        "RSPEC_SAD_EXAMPLES" => EXAMPLE_FILE,
+        "RSPEC_SAD_RESULTS" => RESULT_FILE
+      }
+      cmd = "rspec"
+
+      success = system(env, cmd)
+
+      raise "unable to run command: #{cmd}" if success.nil?
     end
   end
 end
