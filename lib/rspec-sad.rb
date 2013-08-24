@@ -114,6 +114,13 @@ module RSpecSearchAndDestroy
     EXAMPLE_FILE = '/tmp/examples-to-run'
 
     def load_run_results
+      unless File.exist? RESULT_FILE
+        raise <<ERR
+The RSpec result file was not created. Please ensure that SAD is
+added to your RSpec configuration.
+ERR
+      end
+
       File.open(RESULT_FILE, 'rb') do |f|
         RSpecResults.new(Marshal.load(f))
       end
