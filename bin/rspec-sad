@@ -3,6 +3,10 @@
 $LOAD_PATH << "$PWD/../lib/"
 require 'rspec-sad'
 
+require 'rspec-search-and-destroy/binary_chop_example_selector'
+require 'rspec-search-and-destroy/rspec_driver'
+require 'rspec-search-and-destroy/bisector'
+
 include RSpecSearchAndDestroy
 
 class TTYOutput
