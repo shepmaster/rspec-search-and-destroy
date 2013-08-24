@@ -3,21 +3,31 @@ find the root causes of test ordering bugs.
 
 # Background
 
-TODO: Describe the problem, and provide examples
+Ideally, tests are independent of each other, but sometimes global
+state can leak out of one test and cause another test to fail. When
+you have many tests, these types of failures can be insidious to
+debug.
 
 # Usage
+
+First, add the appropriate hooks in your `spec_helper.rb`:
+
+```ruby
+require 'rspec-sad'
+
+RSpec.configure do |config|
+  RSpecSearchAndDestroy.configure(config)
+end
+```
+
+Then run the driver program:
 
 ```
 # Search and destroy mode
 rspec-sad
 
-# Destroy mode
-rspec-sad --seed 12345 --failing-test 'a test that fails but should not'
-
-# Multi-target destroy mode
-rspec-sad --multi-target
-rspec-sad --multi-target \
-  --seed 12345 --failing-test 'a test that fails but should not'
+# If you have a particular ordering that creates issues
+SPEC_OPTIONS="--seed 12345" rspec-sad
 ```
 
 # Search and destroy mode
@@ -27,49 +37,31 @@ occurs, then switch to the destroy phase. In the destroy phase, the
 contributing tests are narrowed down until a single test is found that
 causes the failure.
 
-# Destroy mode
-
-If you already know that you have a failing test, you can give the
-process a jump by providing that information to start with.
-
-# Multi-target destroy mode
-
-Sometimes multiple tests can contribute to a failure. If no single
-test can be found that causes the problem, then it may be worth trying
-multi-target destroy mode. This mode can be much slower than the
-regular mode, and may not produce the smallest set of tests that
-contribute.
-
 # Caveats
 
 RSpec SAD requires that your test suite not have any flaky tests. Any
-intermittently failing tests will
+intermittently failing tests will cause false positives or false
+negatives. In this case, the results will not provide any useful
+information.
 
 # How it works
 
-During the search phase, your test suite will be run with various
-orderings, as controlled by the RSpec `--seed` option. Once a test
-fails, the order of tests will be saved and passed off to the destroy
-phase.
+During the search phase, your test suite will be run once to get the
+set of tests that could contribute to the test failure. The order of
+tests will be saved and passed off to the destroy phase.
 
 During each step of the destroy phase, half of the remaining tests
 will be disabled. If the test continues to fail, these disabled tests
 can be ignored. If the test stops failing, then the currently enabled
 tests can be enabled.
 
-During the multi-target destroy phase, a random set of the preceding
-tests will be disabled. If the test continues to fail, the disabled
-tests can be ignored. Unfortunately, if the test stops failing, then
-nothing can be determined, and a different set of tests must be
-disabled.
-
 ## Implementation notes
 
-The driver program will be one process and start RSpec as a
-subprocess. It will control the random seed, and fail fast.  The
-failed tests will be passed back to the driver program via a custom
-formatter.
+The driver process runs RSpec as a subprocess. The two processes
+communicate using environment variables and files. The driver program
+specifies a set of tests to run, and RSpec reports the results back to
+the driver.
 
-The set of tests to run will be passed via environment variables, and
-the ordering will be enforced using the `example_ordering_block`
-configuration option.
+The test ordering and filtering is done via a custom
+`config.order_examples` block, and the results are saved using a
+custom formatter.
