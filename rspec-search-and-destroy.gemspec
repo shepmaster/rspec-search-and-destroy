@@ -5,6 +5,7 @@ require 'rspec-search-and-destroy/version'
 
 Gem::Specification.new do |gem|
   gem.name          = "rspec-search-and-destroy"
+  gem.license       = 'MIT'
   gem.version       = RSpecSearchAndDestroy::VERSION
   gem.authors       = ["Jake Goulding"]
   gem.email         = ["jake.goulding@gmail.com"]
