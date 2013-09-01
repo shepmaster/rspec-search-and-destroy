@@ -11,6 +11,8 @@ module RSpecSearchAndDestroy
     source = LocationSource.new
     if source.enabled?
       ordering = ReorderAndFilter.new(source)
+
+      config.files_or_directories_to_run = source.example_locations_to_run
       config.order_examples(&ordering.block)
     end
   end
