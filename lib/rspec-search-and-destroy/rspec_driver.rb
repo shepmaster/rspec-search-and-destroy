@@ -6,6 +6,12 @@ module RSpecSearchAndDestroy
     RESULT_FILE = '/tmp/example-results'
     EXAMPLE_FILE = '/tmp/examples-to-run'
 
+    attr_reader :rspec_command
+
+    def initialize(options = {})
+      @rspec_command = options.fetch(:command, 'rspec').split(/\s/)
+    end
+
     def load_run_results
       unless File.exist? RESULT_FILE
         raise <<ERR
@@ -43,9 +49,7 @@ ERR
     private
 
     def run_rspec
-      cmd = "rspec"
-
-      process = ChildProcess.build(cmd)
+      process = ChildProcess.build(*rspec_command)
       process.io.inherit!
       process.environment["RSPEC_SAD_EXAMPLES"] = EXAMPLE_FILE
       process.environment["RSPEC_SAD_RESULTS"] = RESULT_FILE

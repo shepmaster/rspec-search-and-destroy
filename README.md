@@ -28,6 +28,9 @@ rspec-sad
 
 # If you have a particular ordering that creates issues
 SPEC_OPTIONS="--seed 12345" rspec-sad
+
+# If you have a complicated script
+rspec-sad --rspec-command "/path/to/script"
 ```
 
 # Search and destroy mode
