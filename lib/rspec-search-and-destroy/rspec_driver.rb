@@ -1,4 +1,5 @@
 require_relative 'rspec_results'
+require 'childprocess'
 
 module RSpecSearchAndDestroy
   class RSpecDriver
@@ -42,15 +43,15 @@ ERR
     private
 
     def run_rspec
-      env = {
-        "RSPEC_SAD_EXAMPLES" => EXAMPLE_FILE,
-        "RSPEC_SAD_RESULTS" => RESULT_FILE
-      }
       cmd = "rspec"
 
-      success = system(env, cmd)
+      process = ChildProcess.build(cmd)
+      process.io.inherit!
+      process.environment["RSPEC_SAD_EXAMPLES"] = EXAMPLE_FILE
+      process.environment["RSPEC_SAD_RESULTS"] = RESULT_FILE
 
-      raise "unable to run command: #{cmd}" if success.nil?
+      process.start
+      process.wait
     end
   end
 end
