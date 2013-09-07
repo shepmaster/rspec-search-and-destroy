@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-$LOAD_PATH << "$PWD/../lib/"
 require 'rspec-sad'
 
 require 'rspec-search-and-destroy/binary_chop_example_selector'
