@@ -1,14 +1,7 @@
 Feature: Bisecting multiple files
 
 Scenario: Run it
-  Given a file named "spec/spec_helper.rb" with:
-    """ruby
-    require 'rspec-sad'
-
-    RSpec.configure do |config|
-      RSpecSearchAndDestroy.configure(config)
-    end
-    """
+  Given a configured spec/spec_helper.rb
   And a file named "spec/file_1_spec.rb" with:
     """ruby
     require 'spec_helper'
