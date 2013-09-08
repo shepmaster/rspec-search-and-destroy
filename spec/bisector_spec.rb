@@ -1,14 +1,15 @@
 require 'spec_helper'
 require 'rspec-search-and-destroy/bisector.rb'
+require 'rspec-search-and-destroy/binary_chop_example_selector.rb'
 
 describe RSpecSearchAndDestroy::Bisector do
   subject(:bisector) do
     RSpecSearchAndDestroy::Bisector.new(output, selector, executor)
   end
 
-  let(:output)   { double("output") }
+  let(:output)   { double("output").as_null_object }
   let(:selector) { double("selector") }
-  let(:executor) { double("executor") }
+  let(:executor) { double("executor").as_null_object }
 
   let(:failing_example) { double("failing example") }
 
@@ -34,7 +35,7 @@ describe RSpecSearchAndDestroy::Bisector do
   end
 
   context "when executing examples" do
-    let(:potential_causes) { 2.times.map {|i| double("potential example #{i}")} }
+    let(:potential_causes) { build_examples(2) }
     let(:enabled_examples) { [potential_causes.first] }
     let(:disabled_examples) { [potential_causes.last] }
 
@@ -46,7 +47,6 @@ describe RSpecSearchAndDestroy::Bisector do
       # they are just needed to prevent failure
       results = double("results", :failed? => true)
       executor.stub(:load_run_results).and_return(results)
-      output.stub(:found)
     end
 
     it "executes enabled examples" do
@@ -75,7 +75,6 @@ describe RSpecSearchAndDestroy::Bisector do
 
     context "when the executed tests fail" do
       before do
-        executor.stub(:run_examples)
         results = double("results", :failed? => true)
         executor.stub(:load_run_results).and_return(results)
       end
@@ -90,7 +89,6 @@ describe RSpecSearchAndDestroy::Bisector do
 
     context "when the executed tests do not fail" do
       before do
-        executor.stub(:run_examples)
         results = double("results", :failed? => false)
         executor.stub(:load_run_results).and_return(results)
       end
@@ -102,5 +100,37 @@ describe RSpecSearchAndDestroy::Bisector do
         bisector.bisect(potential_causes, failing_example)
       end
     end
+  end
+
+  context "when reporting progress" do
+    let(:potential_causes) { build_examples(3) }
+    let(:selector) { RSpecSearchAndDestroy::BinaryChopExampleSelector.new }
+
+    before do
+      results = double("results", :failed? => false)
+      executor.stub(:load_run_results).and_return(results)
+    end
+
+    it "reports once for each iteration" do
+      progress_1 = BisectionProgress.new(iteration: 1,
+                                         total_examples: 3,
+                                         enabled_examples: 1)
+
+      progress_2 = BisectionProgress.new(iteration: 2,
+                                         total_examples: 3,
+                                         enabled_examples: 1)
+
+      expect(output).to receive(:progress)
+        .with(progress_1).ordered
+
+      expect(output).to receive(:progress)
+        .with(progress_2).ordered
+
+      bisector.bisect(potential_causes, failing_example)
+    end
+  end
+
+  def build_examples(count)
+    count.times.map {|i| double("potential example #{i}")}
   end
 end

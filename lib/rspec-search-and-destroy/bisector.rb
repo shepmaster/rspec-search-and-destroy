@@ -1,3 +1,5 @@
+require_relative 'bisection_progress'
+
 module RSpecSearchAndDestroy
   class Bisector
     attr_reader :output, :selector, :executor
@@ -8,7 +10,7 @@ module RSpecSearchAndDestroy
       @executor = executor
     end
 
-    def bisect(causal_examples, failed_example)
+    def bisect(causal_examples, failed_example, progress = nil)
       case causal_examples.size
       when 1
         output.found(causal_examples.first, failed_example)
@@ -19,17 +21,22 @@ module RSpecSearchAndDestroy
       end
 
       enabled, disabled = selector.enable_set(causal_examples)
-
       to_run = enabled + [failed_example]
-      executor.run_examples(to_run)
 
+      progress =
+        if progress
+          progress.next_iteration(enabled.size)
+        else
+          BisectionProgress.new(total_examples: causal_examples.size,
+                                enabled_examples: enabled.size)
+        end
+      output.progress(progress)
+
+      executor.run_examples(to_run)
       results = executor.load_run_results
 
-      if results.failed?
-        bisect(enabled, failed_example)
-      else
-        bisect(disabled, failed_example)
-      end
+      next_set = results.failed? ? enabled : disabled
+      bisect(next_set, failed_example, progress)
     end
   end
 end
