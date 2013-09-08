@@ -5,16 +5,9 @@ require 'rspec-sad'
 require 'rspec-search-and-destroy/binary_chop_example_selector'
 require 'rspec-search-and-destroy/rspec_driver'
 require 'rspec-search-and-destroy/bisector'
+require 'rspec-search-and-destroy/io_output'
 
 include RSpecSearchAndDestroy
-
-class TTYOutput
-  def found(causal_example, failed_example)
-    puts "Culprit found"
-    puts "Run    #{causal_example[:location]}"
-    puts "Before #{failed_example[:location]}"
-  end
-end
 
 require 'optparse'
 
@@ -35,8 +28,7 @@ BANNER
 end
 option_parser.parse!
 
-
-output = TTYOutput.new
+output = IOOutput.new
 selector = BinaryChopExampleSelector.new
 driver = RSpecDriver.new(driver_options)
 
