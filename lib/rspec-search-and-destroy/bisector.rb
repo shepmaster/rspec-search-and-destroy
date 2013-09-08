@@ -25,11 +25,8 @@ module RSpecSearchAndDestroy
 
       results = executor.load_run_results
 
-      if results.failed?
-        bisect(enabled, failed_example)
-      else
-        bisect(disabled, failed_example)
-      end
+      next_set = results.failed? ? enabled : disabled
+      bisect(next_set, failed_example)
     end
   end
 end
