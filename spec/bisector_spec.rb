@@ -6,9 +6,9 @@ describe RSpecSearchAndDestroy::Bisector do
     RSpecSearchAndDestroy::Bisector.new(output, selector, executor)
   end
 
-  let(:output)   { double("output") }
+  let(:output)   { double("output").as_null_object }
   let(:selector) { double("selector") }
-  let(:executor) { double("executor") }
+  let(:executor) { double("executor").as_null_object }
 
   let(:failing_example) { double("failing example") }
 
@@ -46,7 +46,6 @@ describe RSpecSearchAndDestroy::Bisector do
       # they are just needed to prevent failure
       results = double("results", :failed? => true)
       executor.stub(:load_run_results).and_return(results)
-      output.stub(:found)
     end
 
     it "executes enabled examples" do
@@ -75,7 +74,6 @@ describe RSpecSearchAndDestroy::Bisector do
 
     context "when the executed tests fail" do
       before do
-        executor.stub(:run_examples)
         results = double("results", :failed? => true)
         executor.stub(:load_run_results).and_return(results)
       end
@@ -90,7 +88,6 @@ describe RSpecSearchAndDestroy::Bisector do
 
     context "when the executed tests do not fail" do
       before do
-        executor.stub(:run_examples)
         results = double("results", :failed? => false)
         executor.stub(:load_run_results).and_return(results)
       end
