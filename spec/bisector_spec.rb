@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'rspec-search-and-destroy/bisector.rb'
+require 'rspec-search-and-destroy/binary_chop_example_selector.rb'
 
 describe RSpecSearchAndDestroy::Bisector do
   subject(:bisector) do
@@ -34,7 +35,7 @@ describe RSpecSearchAndDestroy::Bisector do
   end
 
   context "when executing examples" do
-    let(:potential_causes) { 2.times.map {|i| double("potential example #{i}")} }
+    let(:potential_causes) { build_examples(2) }
     let(:enabled_examples) { [potential_causes.first] }
     let(:disabled_examples) { [potential_causes.last] }
 
@@ -99,5 +100,37 @@ describe RSpecSearchAndDestroy::Bisector do
         bisector.bisect(potential_causes, failing_example)
       end
     end
+  end
+
+  context "when reporting progress" do
+    let(:potential_causes) { build_examples(3) }
+    let(:selector) { RSpecSearchAndDestroy::BinaryChopExampleSelector.new }
+
+    before do
+      results = double("results", :failed? => false)
+      executor.stub(:load_run_results).and_return(results)
+    end
+
+    it "reports once for each iteration" do
+      progress_1 = BisectionProgress.new(iteration: 1,
+                                         total_examples: 3,
+                                         enabled_examples: 1)
+
+      progress_2 = BisectionProgress.new(iteration: 2,
+                                         total_examples: 3,
+                                         enabled_examples: 1)
+
+      expect(output).to receive(:progress)
+        .with(progress_1).ordered
+
+      expect(output).to receive(:progress)
+        .with(progress_2).ordered
+
+      bisector.bisect(potential_causes, failing_example)
+    end
+  end
+
+  def build_examples(count)
+    count.times.map {|i| double("potential example #{i}")}
   end
 end
