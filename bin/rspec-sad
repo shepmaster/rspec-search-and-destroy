@@ -16,9 +16,29 @@ class TTYOutput
   end
 end
 
+require 'optparse'
+
+driver_options = {}
+
+option_parser = OptionParser.new do |opts|
+  opts.banner = <<BANNER
+Find RSpec test order bugs
+
+Usage: #{opts.program_name} [options]
+
+BANNER
+
+  opts.on("--rspec-command COMMAND",
+          "Command to run instead of `rspec`") do |cmd|
+    driver_options[:command] = cmd
+  end
+end
+option_parser.parse!
+
+
 output = TTYOutput.new
 selector = BinaryChopExampleSelector.new
-driver = RSpecDriver.new
+driver = RSpecDriver.new(driver_options)
 
 driver.initial_run
 results = driver.load_run_results

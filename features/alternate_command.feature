@@ -1,8 +1,13 @@
-Feature: Bisecting a single file
+Feature: A command other than `rspec` can be run
 
 Scenario: Run it
   Given a configured spec/spec_helper.rb
-  And a file named "spec/single_file_spec.rb" with:
+  And a file named "intermediate_runner.sh" with:
+    """
+    echo 'Running the intermediate script'
+    rspec
+    """
+  And a file named "spec/example_spec.rb" with:
     """ruby
     require 'spec_helper'
 
@@ -21,7 +26,6 @@ Scenario: Run it
       end
     end
     """
-  When I run `rspec-sad`
-  Then the output should contain "Culprit found"
-  And the output should contain "Run    ./spec/single_file_spec.rb:4"
-  And the output should contain "Before ./spec/single_file_spec.rb:13"
+  When I run `rspec-sad --rspec-command='bash ./intermediate_runner.sh'`
+  Then the output should contain "Running the intermediate script"
+  And the output should contain "Culprit found"
