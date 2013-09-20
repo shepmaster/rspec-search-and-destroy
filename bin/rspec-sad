@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'rspec-sad'
-
+require 'rspec-search-and-destroy'
 require 'rspec-search-and-destroy/binary_chop_example_selector'
 require 'rspec-search-and-destroy/rspec_driver'
 require 'rspec-search-and-destroy/bisector'

@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'rspec-sad'
+require 'rspec-search-and-destroy'
 
 describe RSpecSearchAndDestroy::ReorderAndFilter do
   subject(:ordering_block) do
