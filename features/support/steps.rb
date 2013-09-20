@@ -1,6 +1,6 @@
 Given(/^a configured spec\/spec_helper\.rb$/) do
   config = <<CONFIG
-require 'rspec-sad'
+require 'rspec-search-and-destroy'
 
 RSpec.configure do |config|
   RSpecSearchAndDestroy.configure(config)
