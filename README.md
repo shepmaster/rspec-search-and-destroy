@@ -13,7 +13,7 @@ debug.
 First, add the appropriate hooks in your `spec_helper.rb`:
 
 ```ruby
-require 'rspec-search-and-destroy'
+require 'rspec-sad'
 
 RSpec.configure do |config|
   RSpecSearchAndDestroy.configure(config)
